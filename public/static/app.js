@@ -138,7 +138,7 @@
     ranksEl.innerHTML = "";
     try {
       const board = await fetch("/api/leaderboard").then(r => r.json());
-      render(board.jerseys);
+      render(board.jerseys.slice(0, 50));
     } catch (e) {
       console.error(e);
     }
