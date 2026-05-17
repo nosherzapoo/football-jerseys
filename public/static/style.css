@@ -354,6 +354,21 @@ main.board {
 .row .num .big { font-weight: 700; font-size: 15px; }
 .row .num .small { font-size: 11px; color: var(--text-muted); display: block; }
 
+.board-foot {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.board-foot a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.board-foot a:hover { border-bottom-color: var(--accent); }
+
 /* --- About / prose page --- */
 main.prose {
   max-width: 680px;
