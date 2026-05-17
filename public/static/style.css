@@ -354,6 +354,59 @@ main.board {
 .row .num .big { font-weight: 700; font-size: 15px; }
 .row .num .small { font-size: 11px; color: var(--text-muted); display: block; }
 
+/* --- About / prose page --- */
+main.prose {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+main.prose h1 {
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+  line-height: 1.15;
+}
+main.prose .lede {
+  font-size: 17px;
+  color: var(--text-muted);
+  margin: 0 0 36px;
+}
+main.prose section { margin-bottom: 36px; }
+main.prose h2 {
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+main.prose p { margin: 0 0 14px; }
+main.prose ul {
+  padding-left: 22px;
+  margin: 0 0 16px;
+}
+main.prose li { margin-bottom: 6px; }
+main.prose strong { color: var(--text); font-weight: 600; }
+main.prose a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+main.prose a:hover { border-bottom-color: var(--accent); }
+.prose-foot {
+  margin-top: 48px !important;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.prose-foot a {
+  color: var(--text-muted) !important;
+  border-bottom: 0 !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-foot a:hover { color: var(--text) !important; }
+
 /* --- Responsive --- */
 @media (max-width: 720px) {
   .topbar { padding: 14px 18px; }
@@ -379,6 +432,10 @@ main.board {
   .row { grid-template-columns: 28px 44px 1fr auto; gap: 10px; padding: 8px 10px; }
   .row .thumb { width: 44px; height: 44px; }
   .row .name .c { font-size: 14px; }
+  main.prose { padding: 28px 18px 60px; }
+  main.prose h1 { font-size: 26px; }
+  main.prose .lede { font-size: 15px; margin-bottom: 28px; }
+  main.prose h2 { font-size: 18px; }
 }
 
 /* Short laptop screens — don't let cards get cramped vertically. */

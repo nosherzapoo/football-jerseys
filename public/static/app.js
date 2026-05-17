@@ -134,25 +134,13 @@
   const ranksEl = document.getElementById("ranks");
   if (!ranksEl) return;
 
-  const subEl = document.getElementById("board-sub");
-  const toggleButtons = document.querySelectorAll(".sort-toggle button");
-  let currentSort = "wilson";
-
   async function load() {
     ranksEl.innerHTML = "";
-    subEl.textContent = "Loading…";
     try {
-      const [board, stats] = await Promise.all([
-        fetch(`/api/leaderboard?sort=${currentSort}`).then(r => r.json()),
-        fetch("/api/stats").then(r => r.json()),
-      ]);
+      const board = await fetch("/api/leaderboard").then(r => r.json());
       render(board.jerseys);
-      subEl.textContent = `${stats.total_votes.toLocaleString()} votes across ${board.jerseys.length} kits — ` +
-        (currentSort === "wilson"
-          ? "ranked by rating minus 2× uncertainty (kits with few votes can't fluke the top)."
-          : "ranked by raw Glicko-2 rating.");
     } catch (e) {
-      subEl.textContent = "Failed to load leaderboard.";
+      console.error(e);
     }
   }
 
@@ -183,15 +171,6 @@
     }
     ranksEl.appendChild(frag);
   }
-
-  toggleButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      toggleButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentSort = btn.dataset.sort;
-      load();
-    });
-  });
 
   load();
 })();

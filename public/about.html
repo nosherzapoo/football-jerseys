@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0b0d" />
+  <title>About · Kit Ranker</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="brand">KIT<span>·</span>RANKER</a>
+    <nav>
+      <a href="/">Vote</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <main class="prose">
+    <h1>How the ranking works</h1>
+
+    <p class="lede">Every time you pick a kit, two numbers move. Here is what is actually happening under the hood, and why the leaderboard is sorted the way it is.</p>
+
+    <section>
+      <h2>The rating system: Glicko-2</h2>
+      <p>
+        Every kit starts at a rating of <strong>1500</strong>. When two kits go head to head and you pick a winner, the winner gains points and the loser loses points. The amount that gets traded depends on how surprising the result was.
+      </p>
+      <ul>
+        <li>A heavily favoured kit beating an outsider gains very little, because the result is expected.</li>
+        <li>An upset where the underdog wins moves the ratings a lot, because the system just learned something new.</li>
+      </ul>
+      <p>
+        This is the same idea as the Elo system used in chess, but with one important addition. Each kit also tracks an <strong>uncertainty</strong> number, formally called the Rating Deviation, or RD. A brand new kit has high uncertainty (RD around 350). As it collects votes, its rating settles into a stable value and its uncertainty shrinks.
+      </p>
+      <p>
+        The full algorithm is called <a href="http://www.glicko.net/glicko/glicko2.pdf" rel="noopener" target="_blank">Glicko-2</a>, and it was designed by Mark Glickman as an improvement on Elo for exactly this kind of problem, where some players have lots of games and others have only a few.
+      </p>
+    </section>
+
+    <section>
+      <h2>Why we rank by "rating minus 2x uncertainty"</h2>
+      <p>
+        Imagine two kits:
+      </p>
+      <ul>
+        <li><strong>Kit A</strong> has 2 votes, both wins. Its mean rating is sky high.</li>
+        <li><strong>Kit B</strong> has 80 wins and 20 losses. Its mean rating is a bit lower, but we are very confident in it.</li>
+      </ul>
+      <p>
+        Sorting by raw rating would put Kit A above Kit B, which is clearly wrong. Two votes is not enough evidence to crown anything. So instead we sort the leaderboard by <strong>rating minus 2 times the uncertainty</strong>, which is a conservative lower bound on the true rating.
+      </p>
+      <p>
+        Kit A's lower bound is low because its uncertainty is huge. Kit B's lower bound is high because its uncertainty is small. As Kit A collects more votes, its uncertainty shrinks and it climbs the board on merit, not on luck. The same trick is used by Reddit to sort comments and by Amazon to sort reviews.
+      </p>
+    </section>
+
+    <section>
+      <h2>How we pick which kits to show you</h2>
+      <p>
+        Random pairing would waste your time. Showing Brazil home next to an obscure away kit teaches the system almost nothing, because we already know the outcome. So pair selection is weighted toward matchups that are actually informative.
+      </p>
+      <ul>
+        <li><strong>Cold start.</strong> Roughly half the time, the picker prioritises kits that have fewer than five votes so far. Every kit gets exposure quickly.</li>
+        <li><strong>Close ratings.</strong> Among warmed-up kits, the picker prefers pairs whose ratings are near each other. A genuine 50/50 matchup teaches the system more than a foregone conclusion.</li>
+        <li><strong>High uncertainty.</strong> Pairs where at least one kit still has a wide RD are favoured, because that vote will move the rating more.</li>
+        <li><strong>No repeats.</strong> If you have already voted on a pair in this session, it gets a heavy penalty and is unlikely to show up again.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Keeping things fair</h2>
+      <p>
+        Votes are anonymous, tied only to a session cookie. To keep the leaderboard honest without forcing logins, the server enforces a short cooldown between votes and a daily cap per session. Each matchup is also issued a one shot token, so old or replayed votes get rejected.
+      </p>
+    </section>
+
+    <p class="prose-foot">
+      <a href="/">Back to voting</a> · <a href="/leaderboard">See the leaderboard</a>
+    </p>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
