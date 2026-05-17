@@ -36,8 +36,14 @@ def main() -> None:
             primary = row["better_image_path"].strip()
             left = row["left_half_image_path"].strip()
             right = row["right_half_image_path"].strip()
-            # The "alt" half is whichever isn't already the primary.
-            alt = right if primary == left else left
+            # The "alt" half is whichever isn't already the primary. If the row
+            # uses a single image for all three slots (e.g. when only the full
+            # photo is usable), leave image_alt NULL so voting doesn't rotate
+            # to a duplicate.
+            if left == right:
+                alt = None
+            else:
+                alt = right if primary == left else left
 
             cur.execute(
                 "INSERT INTO jerseys (country, kit_type, image_path, image_alt) "
