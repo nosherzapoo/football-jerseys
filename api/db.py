@@ -22,6 +22,11 @@ def _make_conn() -> psycopg.Connection:
     return psycopg.connect(
         DATABASE_URL,
         autocommit=False,
+        # Supabase's transaction pooler (PgBouncer) recycles connections per
+        # transaction and doesn't carry prepared statements across them.
+        # Disabling psycopg's auto-prepare avoids "prepared statement already
+        # exists" errors when a recycled connection sees the same query.
+        prepare_threshold=None,
         # Short statement timeout to keep stuck queries from blocking the
         # serverless function for its full timeout window.
         options="-c statement_timeout=8000",
@@ -54,6 +59,7 @@ CREATE TABLE IF NOT EXISTS jerseys (
     country     TEXT NOT NULL,
     kit_type    TEXT NOT NULL,
     image_path  TEXT NOT NULL,
+    image_alt   TEXT,
     rating      DOUBLE PRECISION NOT NULL DEFAULT 1500.0,
     rd          DOUBLE PRECISION NOT NULL DEFAULT 350.0,
     vol         DOUBLE PRECISION NOT NULL DEFAULT 0.06,
@@ -61,6 +67,9 @@ CREATE TABLE IF NOT EXISTS jerseys (
     wins        INTEGER NOT NULL DEFAULT 0,
     UNIQUE (country, kit_type)
 );
+
+-- For databases provisioned before image_alt was introduced.
+ALTER TABLE jerseys ADD COLUMN IF NOT EXISTS image_alt TEXT;
 
 CREATE TABLE IF NOT EXISTS votes (
     id          BIGSERIAL PRIMARY KEY,

@@ -28,20 +28,35 @@ def main() -> None:
     print("Schema ready.")
 
     with open(CSV_PATH, newline="", encoding="utf-8") as f, c.cursor() as cur:
-        n = 0
+        inserted = 0
+        updated_alt = 0
         for row in csv.DictReader(f):
+            country = row["country_name"].strip()
+            kit_type = row["kit_type"].strip().lower()
+            primary = row["better_image_path"].strip()
+            left = row["left_half_image_path"].strip()
+            right = row["right_half_image_path"].strip()
+            # The "alt" half is whichever isn't already the primary.
+            alt = right if primary == left else left
+
             cur.execute(
-                "INSERT INTO jerseys (country, kit_type, image_path) "
-                "VALUES (%s, %s, %s) ON CONFLICT (country, kit_type) DO NOTHING",
-                (
-                    row["country_name"].strip(),
-                    row["kit_type"].strip().lower(),
-                    row["better_image_path"].strip(),
-                ),
+                "INSERT INTO jerseys (country, kit_type, image_path, image_alt) "
+                "VALUES (%s, %s, %s, %s) "
+                "ON CONFLICT (country, kit_type) DO NOTHING",
+                (country, kit_type, primary, alt),
             )
-            n += cur.rowcount
+            inserted += cur.rowcount
+
+            # Backfill image_alt for rows that pre-date the column.
+            cur.execute(
+                "UPDATE jerseys SET image_alt = %s "
+                "WHERE country = %s AND kit_type = %s AND image_alt IS NULL",
+                (alt, country, kit_type),
+            )
+            updated_alt += cur.rowcount
         c.commit()
-        print(f"Inserted {n} new kits.")
+        print(f"Inserted {inserted} new kits.")
+        print(f"Backfilled image_alt for {updated_alt} existing rows.")
 
         cur.execute("SELECT COUNT(*) FROM jerseys")
         print(f"Total kits in DB: {cur.fetchone()[0]}")

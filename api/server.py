@@ -56,7 +56,7 @@ def _rate_limit_check(c, sid: str) -> None:
 def _pick_pair(c, sid: str) -> tuple[dict, dict]:
     with c.cursor() as cur:
         cur.execute(
-            "SELECT id, country, kit_type, image_path, rating, rd, matches "
+            "SELECT id, country, kit_type, image_path, image_alt, rating, rd, matches "
             "FROM jerseys"
         )
         cols = [d.name for d in cur.description]
@@ -128,11 +128,17 @@ def api_pair(response: Response, sid: str | None = Cookie(default=None)):
     c.commit()
 
     def shape(j):
+        # Show a random half each time, so users see both crops over multiple
+        # matchups instead of only the tagged "better" one.
+        options = [j["image_path"]]
+        if j.get("image_alt"):
+            options.append(j["image_alt"])
+        chosen = random.choice(options)
         return {
             "id": j["id"],
             "country": j["country"],
             "kit_type": j["kit_type"],
-            "image": "/" + j["image_path"].lstrip("/"),
+            "image": "/" + chosen.lstrip("/"),
         }
 
     return {"token": token, "left": shape(a), "right": shape(b)}
