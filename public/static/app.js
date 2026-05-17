@@ -158,15 +158,12 @@
         </div>
         <div class="num">
           <span class="big"></span>
-          <span class="small"></span>
         </div>
       `;
       li.querySelector("img").src = r.image;
       li.querySelector(".c").textContent = r.country;
       li.querySelector(".k").textContent = r.kit_type;
       li.querySelector(".big").textContent = Math.round(r.rating);
-      li.querySelector(".small").textContent =
-        `${r.matches} match${r.matches === 1 ? "" : "es"} · ${Math.round(r.win_pct * 100)}% win`;
       frag.appendChild(li);
     }
     ranksEl.appendChild(frag);
